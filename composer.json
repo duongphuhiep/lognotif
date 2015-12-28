@@ -1,0 +1,13 @@
+{
+    "name": "hiep/lognotif",
+    "description": "log all request",
+    "require": {
+        "monolog/monolog": "^1.17"
+    },
+    "authors": [
+        {
+            "name": "duongphuhiep",
+            "email": "duongphuhiep@gmail.com"
+        }
+    ]
+}
