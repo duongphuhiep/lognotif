@@ -1,10 +1,10 @@
 Sometime, a third-party sends notifications to our PHP application and we want to "see" them in a log file (for testing).
 
-So this small PHP application does only one thing:
+This small PHP application does only one thing:
 
 **Log every requests in the `logs` folder**
 
-It will also return the `phpinfo()` page.
+(It will also reply the `phpinfo()` page)
 
 The logging library [monolog](https://github.com/Seldaek/monolog) is used via [composer](https://getcomposer.org/).
 
