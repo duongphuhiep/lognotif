@@ -2,9 +2,9 @@ Sometime, a third-party sends notifications to our PHP application and we want t
 
 This small PHP application does only one thing:
 
-**Log every requests in the `logs` folder**
+**Log every requests to the `logs` folder**
 
-(It will also reply the `phpinfo()` page)
+The output page is simply `var_dump(request)`
 
 The logging library [monolog](https://github.com/Seldaek/monolog) is used via [composer](https://getcomposer.org/).
 
