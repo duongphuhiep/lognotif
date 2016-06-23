@@ -27,10 +27,10 @@ $log = new Monolog\Logger('G');
 $log->pushHandler($logHandler);
 
 $requestBodyStr = file_get_contents('php://input');
-$info = array("REMOTE_ADDR" => $_SERVER['REMOTE_ADDR'], "IP" => getUserIP(), "get" => $_GET, "post" => $_POST, "postBody" => $requestBodyStr);
+$info = array("REMOTE_ADDR" => @$_SERVER['REMOTE_ADDR'], "IP" => getUserIP(), "AUTH_USER" => @$_SERVER['PHP_AUTH_USER'], "AUTH_PW" => @$_SERVER['PHP_AUTH_PW'], "GET" => $_GET, "POST" => $_POST, "PostBody" => $requestBodyStr);
 $log->addInfo("Received:", $info);
 
 echo "<pre>";
-var_dump($info);
+print_r($info);
 echo "</pre>";
 //phpinfo();
