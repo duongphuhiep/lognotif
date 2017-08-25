@@ -2,18 +2,19 @@
 require __DIR__ . '/vendor/autoload.php';
 
 function getUserIP() {
-	$client = @$_SERVER['HTTP_CLIENT_IP'];
-	$forward = @$_SERVER['HTTP_X_FORWARDED_FOR'];
-	$remote = $_SERVER['REMOTE_ADDR'];
-
-	if (filter_var($client, FILTER_VALIDATE_IP)) {
-		$ip = $client;
-	} elseif (filter_var($forward, FILTER_VALIDATE_IP)) {
-		$ip = $forward;
-	} else {
-		$ip = $remote;
+	$ip = '';
+	if (!empty($_SERVER['HTTP_CLIENT_IP'])) {
+		$ip = $_SERVER['HTTP_CLIENT_IP'];
 	}
-
+	elseif (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
+		$ip = $_SERVER['HTTP_X_FORWARDED_FOR'];
+	}
+	elseif (!empty($_SERVER['REMOTE_ADDR'])) {
+		$ip = $_SERVER['REMOTE_ADDR'];
+	}
+	else {
+		$ip = '';
+	}
 	return $ip;
 }
 
@@ -27,7 +28,18 @@ $log = new Monolog\Logger('G');
 $log->pushHandler($logHandler);
 
 $requestBodyStr = file_get_contents('php://input');
-$info = array("REMOTE_ADDR" => @$_SERVER['REMOTE_ADDR'], "IP" => getUserIP(), "AUTH_USER" => @$_SERVER['PHP_AUTH_USER'], "AUTH_PW" => @$_SERVER['PHP_AUTH_PW'], "GET" => $_GET, "POST" => $_POST, "PostBody" => $requestBodyStr);
+$info = array(
+	"REMOTE_ADDR" => @$_SERVER['REMOTE_ADDR'], 
+	"HTTP_CLIENT_IP" => @$_SERVER['HTTP_CLIENT_IP'], 
+	"HTTP_X_FORWARDED_FOR" => @$_SERVER['HTTP_X_FORWARDED_FOR'], 
+	"IP" => getUserIP(), 
+	"HEADERS" => getallheaders(),
+	"REQUEST" => $_REQUEST,
+	"AUTH_USER" => @$_SERVER['PHP_AUTH_USER'], 
+	"AUTH_PW" => @$_SERVER['PHP_AUTH_PW'], 
+	"GET" => $_GET, 
+	"POST" => $_POST, 
+	"PostBody" => $requestBodyStr);
 $log->addInfo("Received:", $info);
 
 echo "<pre>";
