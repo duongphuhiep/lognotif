@@ -1,6 +1,11 @@
 <?php
 require __DIR__ . '/vendor/autoload.php';
 
+header('Access-Control-Allow-Origin: *');
+header('Access-Control-Allow-Methods: POST, GET, PUT, OPTIONS, HEAD, DELETE, PATCH, CONNECT');
+header('Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With');
+header('Content-Type: application/json');
+
 function getUserIP() {
 	$ip = '';
 	if (!empty($_SERVER['HTTP_CLIENT_IP'])) {
@@ -18,31 +23,27 @@ function getUserIP() {
 	return $ip;
 }
 
-$dateFormat = "Y-m-d H:i:s";
-$outputFormat = "%datetime% %level_name% %message% %context% %extra%  (%channel%)\n";
-$formatter = new Monolog\Formatter\LineFormatter($outputFormat, $dateFormat);
+$formatter = new Monolog\Formatter\LineFormatter("%datetime% %level_name% %message% %context% %extra%  (%channel%)\n", "Y-m-d H:i:s");
 $logHandler = new Monolog\Handler\RotatingFileHandler(__DIR__ . '\logs\notif.log', Monolog\Logger::DEBUG);
 $logHandler->setFormatter($formatter);
 
+$formatterNoDate = new Monolog\Formatter\LineFormatter("%level_name% %message% %context% %extra%  (%channel%)\n", "Y-m-d H:i:s");
+$streamHandler = new Monolog\Handler\StreamHandler('php://stdout', Monolog\Logger::DEBUG);
+$streamHandler->setFormatter($formatterNoDate);
+
 $log = new Monolog\Logger('G');
 $log->pushHandler($logHandler);
+$log->pushHandler($streamHandler);
 
-$requestBodyStr = file_get_contents('php://input');
 $info = array(
-	"REMOTE_ADDR" => @$_SERVER['REMOTE_ADDR'], 
-	"HTTP_CLIENT_IP" => @$_SERVER['HTTP_CLIENT_IP'], 
-	"HTTP_X_FORWARDED_FOR" => @$_SERVER['HTTP_X_FORWARDED_FOR'], 
+	"SERVER" => @$_SERVER,
 	"IP" => getUserIP(), 
 	"HEADERS" => getallheaders(),
 	"REQUEST" => $_REQUEST,
-	"AUTH_USER" => @$_SERVER['PHP_AUTH_USER'], 
-	"AUTH_PW" => @$_SERVER['PHP_AUTH_PW'], 
 	"GET" => $_GET, 
 	"POST" => $_POST, 
-	"PostBody" => $requestBodyStr);
+	"PostBody" => file_get_contents('php://input'));
 $log->addInfo("Received:", $info);
 
-echo "<pre>";
-print_r($info);
-echo "</pre>";
+echo json_encode($info);
 //phpinfo();
